@@ -50,7 +50,7 @@ document.querySelector('#quote-form')?.addEventListener('submit', (event) => {
   }
   localStorage.setItem('lastFormSubmit', now.toString());
   const data = new FormData(form);
-  const subject = encodeURIComponent(`Solicitare ofertă — ${data.get('project') || 'proiect nou'}`);
+  const subject = encodeURIComponent(`Solicitare ofertă - ${data.get('project') || 'proiect nou'}`);
   const body = encodeURIComponent([
     `Nume: ${data.get('name')}`,
     `Contact: ${data.get('contact')}`,
@@ -118,7 +118,7 @@ const contactDetails = () => `<div class="contact-details"><p class="contact-det
 const contactBlock = () => `<section class="inner-cta"><div class="layout"><p class="eyebrow light">Următorul pas</p><h2>Spune-ne ce vrei să protejezi.</h2><a class="button" href="contact.html">Solicită o ofertă <span>↗</span></a></div></section>`;
 const productCards = () => Object.entries(productPages).map(([slug, page], index) => `<a class="mini-card" href="${slug}.html"><span>0${index + 1}</span><img src="${imagePath(page.image)}" alt="" loading="lazy" decoding="async" /><h3>${page.kicker.split(' / ')[1]}</h3><p>${page.lead}</p><b>Descoperă ↗</b></a>`).join('');
 const serviceCards = () => Object.entries(servicePages).map(([slug, page], index) => `<a class="mini-card service-mini" href="${slug}.html"><span>0${index + 1}</span><img src="${imagePath(page.image)}" alt="" loading="lazy" decoding="async" /><span class="service-caption">${page.visual}</span><h3>${slug[0].toUpperCase() + slug.slice(1)}</h3><p>${page.lead}</p><b>Descoperă ↗</b></a>`).join('');
-const mapBlock = () => `<section class="map-section"><div class="layout map-layout"><div><p class="eyebrow">Ne găsești aici</p><h2>Vizitează-ne în Viforâta.</h2><p>Aleea Sinaia nr. 54, loc. Viforâta, comuna Aninoasa, județul Dâmbovița — la intrarea în Târgoviște.</p><a class="text-link" href="https://www.google.com/maps/search/?api=1&query=XF22%2B5M+Vifor%C3%A2ta%2C+Romania" target="_blank" rel="noopener">Deschide în Google Maps <span>↗</span></a></div><iframe title="Harta Pirat Industrial" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=XF22%2B5M+Vifor%C3%A2ta%2C+Romania&output=embed"></iframe></div></section>`;
+const mapBlock = () => `<section class="map-section"><div class="layout map-layout"><div><p class="eyebrow">Ne găsești aici</p><h2>Vizitează-ne în Viforâta.</h2><p>Aleea Sinaia nr. 54, loc. Viforâta, comuna Aninoasa, județul Dâmbovița - la intrarea în Târgoviște.</p><a class="text-link" href="https://www.google.com/maps/search/?api=1&query=XF22%2B5M+Vifor%C3%A2ta%2C+Romania" target="_blank" rel="noopener">Deschide în Google Maps <span>↗</span></a></div><iframe title="Harta Pirat Industrial" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=XF22%2B5M+Vifor%C3%A2ta%2C+Romania&output=embed"></iframe></div></section>`;
 
 function renderInnerPage(pageId) {
   applySeo(pageId);
@@ -151,7 +151,7 @@ function wireInteractions() {
   document.querySelectorAll('.main-nav a').forEach((link) => link.addEventListener('click', () => { pageNav?.classList.remove('open'); pageToggle?.setAttribute('aria-expanded', 'false'); }));
   document.querySelector('#quote-form')?.addEventListener('submit', (event) => {
     event.preventDefault(); const form = event.currentTarget; const data = new FormData(form);
-    const subject = encodeURIComponent(`Solicitare ofertă — ${data.get('project') || 'proiect nou'}`);
+    const subject = encodeURIComponent(`Solicitare ofertă - ${data.get('project') || 'proiect nou'}`);
     const body = encodeURIComponent([`Nume: ${data.get('name')}`, `Contact: ${data.get('contact')}`, `Tip proiect: ${data.get('project') || 'Nespecificat'}`, '', `Detalii: ${data.get('message') || 'Nespecificate'}`].join('\n'));
     form.querySelector('.form-success').classList.add('show'); window.location.href = `mailto:office@prelateindustriale.ro?subject=${subject}&body=${body}`;
   });
