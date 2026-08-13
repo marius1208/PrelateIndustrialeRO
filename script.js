@@ -45,7 +45,7 @@ document.querySelector('#quote-form')?.addEventListener('submit', (event) => {
   const now = Date.now();
   const cooldown = 5000;
   if (lastSubmit && (now - parseInt(lastSubmit)) < cooldown) {
-    alert('Pauza! Asteapta cateva secunde inainte de a trimite o noua solicitare.');
+    alert('Asteapta cateva secunde inainte de a trimite o noua solicitare.');
     return;
   }
   localStorage.setItem('lastFormSubmit', now.toString());
