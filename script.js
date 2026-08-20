@@ -218,7 +218,7 @@ function wireInteractions() {
     const form = event.currentTarget;
     const data = new FormData(form);
     const selectedPricing = pricing[data.get('product')];
-    const rate = Number(String(selectedPricing?.price_per_m2 || selectedPricing?.price || '').replace(',', '.'));
+    const rate = parseFloat(String(selectedPricing?.price_per_m2 || selectedPricing?.price || '').replace(',', '.'));
     const area = Number(data.get('width')) * Number(data.get('length')) * Number(data.get('quantity'));
     const result = document.querySelector('#calculator-result');
     if (!rate) {
