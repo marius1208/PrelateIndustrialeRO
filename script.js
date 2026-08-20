@@ -1,5 +1,59 @@
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
+const pricingSheetUrl = '';
+let pricing = {};
+
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
+
+function parseCsv(text) {
+  const rows = [];
+  let row = [];
+  let value = '';
+  let quoted = false;
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+    const nextCharacter = text[index + 1];
+    if (character === '"' && quoted && nextCharacter === '"') { value += '"'; index += 1; }
+    else if (character === '"') quoted = !quoted;
+    else if (character === ',' && !quoted) { row.push(value.trim()); value = ''; }
+    else if ((character === '\n' || character === '\r') && !quoted) {
+      if (character === '\r' && nextCharacter === '\n') index += 1;
+      row.push(value.trim());
+      if (row.some(Boolean)) rows.push(row);
+      row = []; value = '';
+    } else value += character;
+  }
+  row.push(value.trim());
+  if (row.some(Boolean)) rows.push(row);
+  if (!rows.length) return {};
+  const headers = rows.shift().map((header) => header.toLowerCase());
+  return Object.fromEntries(rows.map((cells) => {
+    const record = Object.fromEntries(headers.map((header, index) => [header, cells[index] || '']));
+    return [record.slug, record];
+  }).filter(([slug, record]) => slug && record.visible.toLowerCase() !== 'false'));
+}
+
+async function loadPricing() {
+  if (!pricingSheetUrl) return {};
+  const response = await fetch(`${pricingSheetUrl}${pricingSheetUrl.includes('?') ? '&' : '?'}_=${Date.now()}`, { cache: 'no-store' });
+  if (!response.ok) throw new Error(`Pricing sheet request failed: ${response.status}`);
+  return parseCsv(await response.text());
+}
+
+const priceMarkup = (slug) => {
+  const item = pricing[slug];
+  if (!item?.price && !item?.price_label) return '';
+  return `<span class="price-tag">${escapeHtml(item.price_label || item.price)}</span>`;
+};
+
+function applyHomePricing() {
+  document.querySelectorAll('[data-pricing-slug]').forEach((element) => {
+    const item = pricing[element.dataset.pricingSlug];
+    if (!item?.price && !item?.price_label) return;
+    element.textContent = item.price_label || item.price;
+    element.hidden = false;
+  });
+}
 
 function closeDropdowns(except = null) {
   document.querySelectorAll('.nav-dropdown[open]').forEach((dropdown) => {
@@ -116,8 +170,8 @@ const sharedNav = () => `
 const sharedFooter = () => `<footer class="site-footer"><div class="layout footer-top"><a class="brand" href="index.html"><span class="brand-mark"><i></i><i></i><i></i></span><span>PIRAT<span class="brand-light">/ INDUSTRIAL</span></span></a><a href="mailto:office@prelateindustriale.ro">office@prelateindustriale.ro <span>↗</span></a></div><div class="layout footer-bottom"><p>© 2026 Pirat Industrial. Toate drepturile rezervate.</p><p>Târgoviște, România</p><a href="#top">Înapoi sus ↑</a></div></footer>`;
 const contactDetails = () => `<div class="contact-details"><p class="contact-detail-label">Contact direct</p><a href="mailto:office@prelateindustriale.ro">office@prelateindustriale.ro</a><a href="mailto:alin.bercu@prelateindustriale.ro">alin.bercu@prelateindustriale.ro</a><p><strong>Telefon:</strong> <a href="tel:+40722750179">0722.750.179</a></p><p><strong>Fax:</strong> 0245.219.197</p></div>`;
 const contactBlock = () => `<section class="inner-cta"><div class="layout"><p class="eyebrow light">Următorul pas</p><h2>Spune-ne ce vrei să protejezi.</h2><a class="button" href="contact.html">Solicită o ofertă <span>↗</span></a></div></section>`;
-const productCards = () => Object.entries(productPages).map(([slug, page], index) => `<a class="mini-card" href="${slug}.html"><span>0${index + 1}</span><img src="${imagePath(page.image)}" alt="" loading="lazy" decoding="async" /><h3>${page.kicker.split(' / ')[1]}</h3><p>${page.lead}</p><b>Descoperă ↗</b></a>`).join('');
-const serviceCards = () => Object.entries(servicePages).map(([slug, page], index) => `<a class="mini-card service-mini" href="${slug}.html"><span>0${index + 1}</span><img src="${imagePath(page.image)}" alt="" loading="lazy" decoding="async" /><span class="service-caption">${page.visual}</span><h3>${slug[0].toUpperCase() + slug.slice(1)}</h3><p>${page.lead}</p><b>Descoperă ↗</b></a>`).join('');
+const productCards = () => Object.entries(productPages).map(([slug, page], index) => `<a class="mini-card" href="${slug}.html"><span>0${index + 1}</span><img src="${imagePath(page.image)}" alt="" loading="lazy" decoding="async" /><h3>${page.kicker.split(' / ')[1]}</h3>${priceMarkup(slug)}<p>${page.lead}</p><b>Descoperă ↗</b></a>`).join('');
+const serviceCards = () => Object.entries(servicePages).map(([slug, page], index) => `<a class="mini-card service-mini" href="${slug}.html"><span>0${index + 1}</span><img src="${imagePath(page.image)}" alt="" loading="lazy" decoding="async" /><span class="service-caption">${page.visual}</span><h3>${slug[0].toUpperCase() + slug.slice(1)}</h3>${priceMarkup(slug)}<p>${page.lead}</p><b>Descoperă ↗</b></a>`).join('');
 const mapBlock = () => `<section class="map-section"><div class="layout map-layout"><div><p class="eyebrow">Ne găsești aici</p><h2>Vizitează-ne în Viforâta.</h2><p>Aleea Sinaia nr. 54, loc. Viforâta, comuna Aninoasa, județul Dâmbovița - la intrarea în Târgoviște.</p><a class="text-link" href="https://www.google.com/maps/search/?api=1&query=XF22%2B5M+Vifor%C3%A2ta%2C+Romania" target="_blank" rel="noopener">Deschide în Google Maps <span>↗</span></a></div><iframe title="Harta Pirat Industrial" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=XF22%2B5M+Vifor%C3%A2ta%2C+Romania&output=embed"></iframe></div></section>`;
 
 function renderInnerPage(pageId) {
@@ -125,10 +179,10 @@ function renderInnerPage(pageId) {
   let main = '';
   if (productPages[pageId]) {
     const page = productPages[pageId];
-    main = `<main id="top"><section class="inner-hero"><div class="layout"><p class="eyebrow">${page.kicker}</p><h1>${page.title}</h1><p>${page.lead}</p></div></section><section class="detail layout"><img src="${imagePath(page.image)}" alt="" /><div><p class="eyebrow">Ce putem realiza</p><h2>Adaptat proiectului tău.</h2><p>Fiecare produs este stabilit după dimensiunile, condițiile de expunere și felul în care spațiul va fi utilizat. Alegem soluția care își face treaba bine, nu doar pe cea care arată bine pe hârtie.</p><ul class="check-list">${page.items.map((item) => `<li>${item}</li>`).join('')}</ul><a class="text-link" href="contact.html">Discută cu noi despre proiect <span>↗</span></a></div></section>${contactBlock()}</main>`;
+    main = `<main id="top"><section class="inner-hero"><div class="layout"><p class="eyebrow">${page.kicker}</p><h1>${page.title}</h1><p>${page.lead}</p>${priceMarkup(pageId)}</div></section><section class="detail layout"><img src="${imagePath(page.image)}" alt="" /><div><p class="eyebrow">Ce putem realiza</p><h2>Adaptat proiectului tău.</h2><p>Fiecare produs este stabilit după dimensiunile, condițiile de expunere și felul în care spațiul va fi utilizat. Alegem soluția care își face treaba bine, nu doar pe cea care arată bine pe hârtie.</p><ul class="check-list">${page.items.map((item) => `<li>${item}</li>`).join('')}</ul><a class="text-link" href="contact.html">Discută cu noi despre proiect <span>↗</span></a></div></section>${contactBlock()}</main>`;
   } else if (servicePages[pageId]) {
     const page = servicePages[pageId];
-    main = `<main id="top"><section class="inner-hero service-hero"><div class="layout"><p class="eyebrow">Servicii / ${pageId}</p><h1>${page.title}</h1><p>${page.lead}</p></div></section><section class="detail process layout"><div><p class="eyebrow">Cum lucrăm</p><h2>Clar de la început până la final.</h2><p>Un proiect bun rămâne simplu atunci când fiecare etapă este făcută în ordinea potrivită.</p></div><ol class="process-list">${page.steps.map((step, index) => `<li><span>0${index + 1}</span>${step}</li>`).join('')}</ol></section>${contactBlock()}</main>`;
+    main = `<main id="top"><section class="inner-hero service-hero"><div class="layout"><p class="eyebrow">Servicii / ${pageId}</p><h1>${page.title}</h1><p>${page.lead}</p>${priceMarkup(pageId)}</div></section><section class="detail process layout"><div><p class="eyebrow">Cum lucrăm</p><h2>Clar de la început până la final.</h2><p>Un proiect bun rămâne simplu atunci când fiecare etapă este făcută în ordinea potrivită.</p></div><ol class="process-list">${page.steps.map((step, index) => `<li><span>0${index + 1}</span>${step}</li>`).join('')}</ol></section>${contactBlock()}</main>`;
   } else if (pageId === 'produse' || pageId === 'servicii') {
     const products = pageId === 'produse';
     main = `<main id="top"><section class="inner-hero"><div class="layout"><p class="eyebrow">${products ? 'Produse' : 'Servicii'}</p><h1>${products ? 'Soluții construite pentru condiții reale.' : 'Alături de proiect, de la idee la montaj.'}</h1><p>${products ? 'Explorăm fiecare proiect pornind de la utilizarea lui concretă.' : 'Aducem claritate tehnică și grijă pentru execuție în fiecare etapă.'}</p></div></section><section class="listing layout"><p class="eyebrow">${products ? 'Categorii de produse' : 'Serviciile noastre'}</p><div class="mini-grid">${products ? productCards() : serviceCards()}</div></section>${contactBlock()}</main>`;
@@ -157,9 +211,15 @@ function wireInteractions() {
   });
 }
 
-if (document.body.dataset.page) {
-  renderInnerPage(document.body.dataset.page);
-} else {
-  applySeo('home');
-  setupExclusiveDropdowns();
-}
+loadPricing().then((loadedPricing) => {
+  pricing = loadedPricing;
+  if (document.body.dataset.page) renderInnerPage(document.body.dataset.page);
+  else {
+    applySeo('home');
+    setupExclusiveDropdowns();
+    applyHomePricing();
+  }
+}).catch((error) => {
+  console.error(error);
+  if (document.body.dataset.page) renderInnerPage(document.body.dataset.page);
+});
