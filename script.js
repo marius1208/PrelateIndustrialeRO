@@ -43,7 +43,7 @@ async function loadPricing() {
 const priceMarkup = (slug) => {
   const item = pricing[slug];
   if (!item?.price && !item?.price_label) return '';
-  return `<span class="price-tag">${escapeHtml(item.price_label || item.price)}</span>`;
+  return `<a class="price-tag" href="contact.html">${escapeHtml(item.price_label || item.price)}</a>`;
 };
 
 function applyHomePricing() {
