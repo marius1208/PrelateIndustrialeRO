@@ -211,15 +211,14 @@ function wireInteractions() {
   });
 }
 
+if (document.body.dataset.page) renderInnerPage(document.body.dataset.page);
+else {
+  applySeo('home');
+  setupExclusiveDropdowns();
+}
+
 loadPricing().then((loadedPricing) => {
   pricing = loadedPricing;
   if (document.body.dataset.page) renderInnerPage(document.body.dataset.page);
-  else {
-    applySeo('home');
-    setupExclusiveDropdowns();
-    applyHomePricing();
-  }
-}).catch((error) => {
-  console.error(error);
-  if (document.body.dataset.page) renderInnerPage(document.body.dataset.page);
-});
+  else applyHomePricing();
+}).catch((error) => console.error(error));
