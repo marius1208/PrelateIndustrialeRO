@@ -1,6 +1,6 @@
 const toggle = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.main-nav');
-const pricingSheetUrl = '';
+const pricingSheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQz_E9A_f1a5wa5nV5gTfuiQ9t4tiUBgiRIcEQHxg5Ek3DBVhJc-IyP6FcIGU1DfW-se6Z9bQbDRk6m/pub?gid=0&single=true&output=csv';
 let pricing = {};
 
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[character]);
@@ -26,7 +26,7 @@ function parseCsv(text) {
   row.push(value.trim());
   if (row.some(Boolean)) rows.push(row);
   if (!rows.length) return {};
-  const headers = rows.shift().map((header) => header.toLowerCase());
+  const headers = rows.shift().map((header) => header.trim().toLowerCase());
   return Object.fromEntries(rows.map((cells) => {
     const record = Object.fromEntries(headers.map((header, index) => [header, cells[index] || '']));
     return [record.slug, record];
