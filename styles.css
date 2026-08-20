@@ -38,6 +38,8 @@ h1,h2,h3,p { margin-top:0; }h1,h2 { letter-spacing:-.055em; }h1 { font-size:clam
 .contact { display:block; max-width:720px; text-align:center; }
 .contact-intro > p:not(.eyebrow) { margin-inline:auto; }
 .contact-form { display:none; }
+.phone-big { border-bottom:0; }
+.contact-details { border-top:0; }
 .calculator { align-items:start; display:grid; gap:11vw; grid-template-columns:1fr 1fr; padding:105px 0 120px; }
 .calculator-form { display:flex; flex-direction:column; gap:24px; }
 .calculator-form label { color:#5b635f; display:flex; flex-direction:column; font:11px 'DM Mono',monospace; gap:8px; letter-spacing:.04em; text-transform:uppercase; }
