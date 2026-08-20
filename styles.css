@@ -35,3 +35,6 @@ h1,h2,h3,p { margin-top:0; }h1,h2 { letter-spacing:-.055em; }h1 { font-size:clam
 .price-tag { background:var(--orange); color:#fff; display:inline-block; font:500 11px 'DM Mono',monospace; letter-spacing:.05em; margin-top:18px; padding:8px 10px; text-transform:uppercase; }
 .form-note { display:none; }
 .contact-details { align-items:center; border-left:0; border-top:3px solid var(--orange); padding:18px 0 3px; text-align:center; }
+.contact { display:block; max-width:720px; text-align:center; }
+.contact-intro > p:not(.eyebrow) { margin-inline:auto; }
+.contact-form { display:none; }
